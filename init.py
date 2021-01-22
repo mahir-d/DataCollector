@@ -29,14 +29,15 @@ if __name__ == "__main__":
     parser.add_argument('-st', '--status', dest='Status',
                         choices=['New', 'Draft', 'Cancelled', 'Active',
                                  'Completed'],
+                        default='Completed',
                         help="Please choose the status of the challenges\
-                            to be fetched")
+                            to be fetched. Default set as Completed")
 
     parser.add_argument('-so', '--sortOrder', choices=['asc', 'desc'],
                         dest='SortedOrder',
                         default='asc',
                         help="Should the challenges be sorted in ascending or\
-                            descending order")
+                            descending order. Deafult set as asc")
 
     args = parser.parse_args()
 
@@ -57,7 +58,7 @@ if __name__ == "__main__":
 
     input_path = args.Path
 
-    # Checks if the directory exists
+    # Checks if the directory existsi
     if not os.path.isdir(input_path):
         print('Error: The path specified is not a directory')
         sys.exit()
