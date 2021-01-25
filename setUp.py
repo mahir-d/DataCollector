@@ -37,9 +37,10 @@ class setUp:
             timeout=2.00)
         challenge_list = response.json()
 
-        director_path = self.storage_directory
+        directory_path = self.storage_directory
 
-        my_file = open(os.path.join(director_path, f'demoData.json'), "w")
+        my_file = open(os.path.join(directory_path, f'demoData.json'), "w")
+        # Loads sample data to demoData.json
         with my_file:
             bar = Bar('Processing', max=params["perPage"])
             for challenge in challenge_list:
@@ -50,7 +51,8 @@ class setUp:
             bar.finish()
             my_file.close()
 
-        print('--- Sample data loaded to demoData.json at the directory path ---')
+        print(
+            f'--- Sample data loaded to demoData.json at the path {directory_path} ---')
 
         total_pages = response.headers["X-Total-Pages"]
         total_challenges = response.headers["X-Total"]
