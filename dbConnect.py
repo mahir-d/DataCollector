@@ -16,7 +16,7 @@ class dbConnect:
         self.check_database(self.db_name)
 
         self.check_table('Challenges')
-        self.db_obj.close()
+        self.db_connection.close()
 
     def connect_db_server(self):
         ''' Makes the connection with the MySql database usin the provided config '''
@@ -57,16 +57,10 @@ class dbConnect:
     def check_table(self, table_name: str):
         ''' Checks if table exists otherwise creates it in database '''
         db_obj = self.db_connection.cursor()
-        db_obj.execute("SHOW TABLES")
 
         try:
             db_obj.execute(
-                f'CREATE TABLE IF NOT EXISTS {table_name} (challengeId VARCHAR(50) PRIMARY KEY,\
-                    challengeName VARCHAR(512),\
-legacyId VARCHAR(10), status VARCHAR(10) ,\
-track VARCHAR(20)), type VARCHAR(20), forumId VARCHAR(20),\
-    directProjectId VARCHAR(20) , legacyProjectId VARCHAR(20), challengeDescription MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, createdOn DATETIME, registrationStartDate DATETIME, registrationEndDate DATETIME, submissionStartDate DATETIME, submissionEndDate DATETIME, Tags VARCHAR(512), numOfSubmissions INT(4), numOfRegistrants INT(4), winners INT(4), totalPrizeCost INT(10)'
-            )
+                f'CREATE TABLE IF NOT EXISTS {table_name} (challengeId VARCHAR(50) PRIMARY KEY, challengeName VARCHAR(512), legacyId VARCHAR(10), status VARCHAR(10), challengeTrack VARCHAR(20), challengeType VARCHAR(20), forumId VARCHAR(20), directProjectId VARCHAR(20) , legacyProjectId VARCHAR(20), challengeDescription MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, createdOn DATETIME, registrationStartDate DATETIME, registrationEndDate DATETIME, submissionStartDate DATETIME, submissionEndDate DATETIME, Tags VARCHAR(512), numOfSubmissions INT(4), numOfRegistrants INT(4), winners INT(4), totalPrizeCost INT(10))')
             print('table created')
         except mysql.connector.Error as err:
             print(f'table could not be created cause of {err}')
