@@ -1,6 +1,8 @@
+''' This file contains methods to connect to Mysql database '''
 import mysql.connector
 from mysql.connector import errorcode
 import argparse
+import json
 
 
 class dbConnect:
@@ -11,11 +13,15 @@ class dbConnect:
         self.db_port = args.port
         self.db_name = args.database
         self.db_connection = ''
+        self.table_name = args.table_name
 
+        # Connects to the Mysql server
         self.connect_db_server()
+        # Connects to the given database
         self.check_database(self.db_name)
+        # Checks if the table exists otherwise creates it
+        self.check_table(self.table_name)
 
-        self.check_table('Challenges')
         self.db_connection.close()
 
     def connect_db_server(self):
@@ -41,34 +47,25 @@ class dbConnect:
     def check_database(self, database_name: str):
         ''' Checks if database exists otherwise creates it '''
         db_obj = self.db_connection.cursor()
-        print(db_obj.execute("SHOW DATABASES"))
+        db_obj.execute(f'CREATE DATABASE IF NOT EXISTS {database_name}')
 
-        if database_name not in db_obj:
-            print("does not exists")
-            db_obj.execute(
-                f'CREATE DATABASE IF NOT EXISTS {database_name}')
-
-            db_obj.execute(f'USE {self.db_name}')
-            print('Database created')
-
-        else:
-            print("Database exists")
+        db_obj.execute(f'USE {self.db_name}')
+        print('Database created')
 
     def check_table(self, table_name: str):
         ''' Checks if table exists otherwise creates it in database '''
         db_obj = self.db_connection.cursor()
 
-        try:
-            db_obj.execute(
-                f'CREATE TABLE IF NOT EXISTS {table_name} (challengeId VARCHAR(50) PRIMARY KEY, challengeName VARCHAR(512), legacyId VARCHAR(10), status VARCHAR(10), challengeTrack VARCHAR(20), challengeType VARCHAR(20), forumId VARCHAR(20), directProjectId VARCHAR(20) , legacyProjectId VARCHAR(20), challengeDescription MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, createdOn DATETIME, registrationStartDate DATETIME, registrationEndDate DATETIME, submissionStartDate DATETIME, submissionEndDate DATETIME, Tags VARCHAR(512), numOfSubmissions INT(4), numOfRegistrants INT(4), winners INT(4), totalPrizeCost INT(10))')
-            print('table created')
-        except mysql.connector.Error as err:
-            print(f'table could not be created cause of {err}')
-
-        # my_cursor.execute("SHOW TABLES")
-
-        # for x in my_cursor:
-        #     print(x)
+        j_file = open("tableColumnName.json", "r")
+        with j_file:
+            json_data = j_file.read()
+            my_dict = json.loads(json_data)
+            try:
+                db_obj.execute(
+                    f'CREATE TABLE IF NOT EXISTS {table_name} ({my_dict[table_name]["col_name_create"]})')
+                print('table created')
+            except mysql.connector.Error as err:
+                print(f'table could not be created cause of Error: {err}')
 
 
 def main(args):
@@ -98,6 +95,9 @@ if __name__ == "__main__":
     parser.add_argument('-db', '--database', metavar='database_name', type=str,
                         help='optional Database name, default set as dataCollector',
                         default='dataCollector')
+
+    parser.add_argument('-t', '--table_name', default='Challenges',
+                        help='optional Table name, default set as Challenges')
 
     args = parser.parse_args()
 
