@@ -4,6 +4,7 @@ import requests
 import json
 from progress.bar import Bar
 import os
+from dbConnect import dbConnect
 
 
 class setUp:
@@ -12,6 +13,7 @@ class setUp:
     def __init__(self, argsParsedData):
         # print(argsParsedData)
         self.storage_directory = argsParsedData.Path
+        # self.storage_directory = "/Users/mahirdhall/Desktop/WebScrapping"
         self.start_date_start_range = argsParsedData.Start_date
         self.end_date_start_range = argsParsedData.End_date
         self.status = argsParsedData.Status
@@ -80,31 +82,72 @@ class setUp:
         ''' This function downloads all the data based on the given config '''
 
         params = self.params
-        curr_dir = os.path.join(self.storage_directory,
-                                f'data {self.start_date_start_range}')
-        os.mkdir(curr_dir)
+        # Database config can be added here
+        db_Config = {
+            "username": "root",
+            "hostname": "localhost",
+            "password": "password",
+            "port": "3306",
+            "database": "dataCollector",
+            "table_name": "Challenges"
+        }
 
-        for i in range(1, int(total_pages) + 1):
-            params['page'] = i
+        try:
+            print('connecting database')
+            my_db = dbConnect(db_Config)
+            print(' database connected')
+            bar = Bar('Processing', max=total_pages)
+            for i in range(1, int(total_pages) + 1):
+                params['page'] = i
 
-            response = requests.get(
-                'http://api.topcoder.com/v5/challenges/', params=params,
-                timeout=2.00)
+                response = requests.get(
+                    'http://api.topcoder.com/v5/challenges/', params=params,
+                    timeout=2.00)
 
-            if response.ok:
-                challenge_list = response.json()
-                director_path = self.storage_directory
+                if response.ok:
+                    challenge_list = response.json()
+                    my_db.upload_data(challenge_list, "Challenges")
 
-                my_file = open(os.path.join(
-                    curr_dir, f'page {i}.json'), "w")
-                with my_file:
-                    bar = Bar('Processing', max=params["perPage"])
-                    for challenge in challenge_list:
-                        # print(challenge)
-                        json.dump(challenge, my_file, indent=4)
-                        bar.next()
+                    print('Downloaded and store data from page {i}')
+                else:
+                    print('Could not download data from page {i}')
+                bar.next()
+            bar.finish()
+            print('All data downloaded')
+        except Exception as e:
+            print(e)
 
-                    bar.finish()
-                    my_file.close()
-            print('Downloaded and store data from page {i}')
-        print('All data downloaded')
+
+# Code to add data to json file
+#  --------------------------------------------------------------------------
+# def get_data(self, total_pages: int, total_challenges: int):
+#     ''' This function downloads all the data based on the given config '''
+
+#     params = self.params
+#      curr_dir = os.path.join(self.storage_directory,
+#                               f'data {self.start_date_start_range}')
+#       os.mkdir(curr_dir)
+
+#        for i in range(1, int(total_pages) + 1):
+#             params['page'] = i
+
+#             response = requests.get(
+#                 'http://api.topcoder.com/v5/challenges/', params=params,
+#                 timeout=2.00)
+
+#             if response.ok:
+#                 challenge_list = response.json()
+
+#                 my_file = open(os.path.join(
+#                     curr_dir, f'page {i}.json'), "w")
+#                 with my_file:
+#                     bar = Bar('Processing', max=params["perPage"])
+#                     for challenge in challenge_list:
+#                         # print(challenge)
+#                         json.dump(challenge, my_file, indent=4)
+#                         bar.next()
+
+#                     bar.finish()
+#                     my_file.close()
+#             print('Downloaded and store data from page {i}')
+#         print('All data downloaded')

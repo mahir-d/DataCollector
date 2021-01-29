@@ -7,13 +7,14 @@ import json
 
 class dbConnect:
     def __init__(self, args) -> None:
-        self.db_username = args.username
-        self.db_hostname = args.hostname
-        self.db_password = args.password
-        self.db_port = args.port
-        self.db_name = args.database
+        print(args)
+        self.db_username = args['username']
+        self.db_hostname = args['hostname']
+        self.db_password = args['password']
+        self.db_port = args['port']
+        self.db_name = args['database']
         self.db_connection = ''
-        self.table_name = args.table_name
+        self.table_name = args['table_name']
 
         # Connects to the Mysql server
         self.connect_db_server()
@@ -22,7 +23,7 @@ class dbConnect:
         # Checks if the table exists otherwise creates it
         self.check_table(self.table_name)
 
-        self.db_connection.close()
+        self.upload_data("", "Challenges")
 
     def connect_db_server(self):
         ''' Makes the connection with the MySql database usin the provided config '''
@@ -67,9 +68,36 @@ class dbConnect:
             except mysql.connector.Error as err:
                 print(f'table could not be created cause of Error: {err}')
 
+    def upload_data(self, json_data, table_name) -> bool:
+
+        db_obj = self.db_connection.cursor()
+        print('hello mahir')
+        j_file = open("tableColumnName.json", "r")
+        with j_file:
+            json_data = j_file.read()
+            my_dict = json.loads(json_data)
+
+            for challenge_data in json_data:
+                cd = challenge_data
+                val_to_insert = (cd["id"], cd["name"], cd["legacyId"],
+                                 cd["status"], cd["track"], cd[type], cd["legacy"]["forumId"], cd["legacy"]["directProjectId"], cd["projectId"], cd["description"], cd["created"], cd["startDate"], cd["endDate"], cd["registrationStartDate"], cd["registrationEndDate"], cd["submissionStartDate"], cd["submissionEndDate"], "React", cd['numOfSubmissions'], cd['numOfRegistrants'], "Mahir", 1000)
+                sql_query = f'INSERT INTO Challenges {my_dict[table_name]["col_name_insert"]} VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s))'
+                db_obj.execute(sql_query, str(val_to_insert))
+
+                print("done")
+                break
+
 
 def main(args):
-    db = dbConnect(args)
+    db_Config = {
+        "username": "root",
+        "hostname": "localhost",
+        "password": "password",
+        "port": "3306",
+        "database": "dataCollector",
+        "table_name": "Challenges"
+    }
+    db = dbConnect(db_Config)
 
 
 if __name__ == "__main__":
