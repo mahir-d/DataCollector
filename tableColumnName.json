@@ -1,0 +1,6 @@
+{
+    "Challenges": {
+        "col_name_create": "challengeId VARCHAR(50) PRIMARY KEY, challengeName VARCHAR(512), legacyId VARCHAR(10), status VARCHAR(10), challengeTrack VARCHAR(20), challengeType VARCHAR(20), forumId VARCHAR(20), directProjectId VARCHAR(20) , legacyProjectId VARCHAR(20), challengeDescription MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, createdOn DATETIME,startDate DATETIME,endDate DATETIME,registrationStartDate DATETIME, registrationEndDate DATETIME, submissionStartDate DATETIME, submissionEndDate DATETIME, Tags VARCHAR(512), numOfSubmissions INT(4), numOfRegistrants INT(4), winners INT(4), totalPrizeCost INT(10)",
+        "col_name_insert": "challengeId, challengeName, legacyId, status, challengeTrack, challengeType, forumId, directProjectId , legacyProjectId, challengeDescription, createdOn,startDate,endDate ,registrationStartDate , registrationEndDate , submissionStartDate , submissionEndDate , Tags , numOfSubmissions , numOfRegistrants , winners , totalPrizeCost"
+    }
+}
