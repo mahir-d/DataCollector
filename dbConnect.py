@@ -3,7 +3,6 @@ import mysql.connector
 from mysql.connector import errorcode
 import argparse
 import json
-from datetime import datetime
 from utility import parse_iso_dt
 
 
@@ -23,7 +22,8 @@ class dbConnect:
         # Connects to the given database
         self.check_database(self.db_name)
         # Checks if the table exists otherwise creates it
-        self.check_table(self.table_name)
+        self.check_table("Challenges")
+        self.check_table("Challenge_Member_Mapping")
 
     def connect_db_server(self):
         ''' Makes the connection with the MySql database usin the provided config '''

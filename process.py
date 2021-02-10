@@ -1,4 +1,4 @@
-''' This file contains methods to process json objects into correct format '''
+''' This file contains methods to parse json objects into correct format '''
 
 from typing import Dict
 from utility import parse_iso_dt, calculate_prizes

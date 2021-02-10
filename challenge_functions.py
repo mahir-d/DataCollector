@@ -1,5 +1,47 @@
+''' This file Contains functions related to all functions related to Challenge '''
 import requests
 from requests.exceptions import HTTPError
+import os
+import json
+from progress.bar import Bar
+from process import format_challenge
+
+
+def get_data(total_pages: int, total_challenges: int, params, start_date_start_range, end_date_start_range, storage_directory):
+    ''' Fetches the API, formats and stores as JSON in given directory '''
+
+    directory_name: str = f'challengeData_{start_date_start_range.date()}_{end_date_start_range.date()}'
+    curr_dir = os.path.join(storage_directory,
+                            directory_name)
+
+    try:
+        os.mkdir(curr_dir)
+    except Exception as e:
+        print("--- Directory exists ---", e)
+
+    for i in range(1, int(total_pages) + 1):
+        params['page'] = i
+
+        response = requests.get(
+            'http://api.topcoder.com/v5/challenges/', params=params,
+            timeout=2.00)
+
+        if response.ok:
+            challenge_list = response.json()
+
+            my_file = open(os.path.join(
+                curr_dir, f'page {i}.json'), "w")
+            with my_file:
+                bar = Bar('Processing', max=params["perPage"])
+                for challenge in challenge_list:
+                    formatted_challenge = format_challenge(challenge)
+                    json.dump(formatted_challenge, my_file, indent=4)
+                    bar.next()
+
+                bar.finish()
+                my_file.close()
+        print('Downloaded and store data from page {i}')
+    print('All data downloaded')
 
 
 def fetch_challenge_registrants(challenge_id: str):
