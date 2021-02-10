@@ -1,4 +1,4 @@
-''' This file contains the command line argument parser to set config of the
+''' This file contains the command line interface or argument parser to set config of the
     data collector
 '''
 import argparse
@@ -7,6 +7,7 @@ import sys
 import datetime
 from utility import valid_date
 from setUp import setUp
+
 
 if __name__ == "__main__":
 
@@ -38,6 +39,10 @@ if __name__ == "__main__":
                         default='asc',
                         help="Should the challenges be sorted in ascending or\
                             descending order. Deafult set as asc")
+    parser.add_argument('-tr', '--track', choices=['Dev', 'DS', 'Des', 'QA'],
+                        help="Provide a track from Dev, DS, DES, QA. by default DEV",
+                        default="Dev"
+                        )
 
     args = parser.parse_args()
 
@@ -58,7 +63,7 @@ if __name__ == "__main__":
 
     input_path = args.Path
 
-    # Checks if the directory existsi
+    # Checks if the directory exists
     if not os.path.isdir(input_path):
         print('Error: The path specified is not a directory')
         sys.exit()

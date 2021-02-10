@@ -5,6 +5,7 @@ import json
 from progress.bar import Bar
 import os
 from dbConnect import dbConnect
+from process import format_challenge
 
 
 class setUp:
@@ -18,11 +19,12 @@ class setUp:
         self.end_date_start_range = argsParsedData.End_date
         self.status = argsParsedData.Status
         self.sortedOrder = argsParsedData.SortedOrder
+        self.track = argsParsedData.track
         self.params = {
             'page': 1,
             'perPage': 50,
             'status': self.status,
-            'tracks[]': 'Dev',
+            'tracks[]': [self.track],
             'sortBy': 'startDate',
             'startDateStart': self.start_date_start_range.isoformat(),
             'endDateEnd': self.end_date_start_range.isoformat(),
@@ -58,22 +60,13 @@ class setUp:
 
         total_pages = response.headers["X-Total-Pages"]
         total_challenges = response.headers["X-Total"]
-
         print(
-            f'Total no of Pages - {total_pages}\
-                with {params["perPage"]} challenges per Page')
-        print(
-            f'Total No of challenges - {total_challenges}\
-                with status {params["status"]}')
-
-        print(
-            f'Do you want to go ahead and\
-                download {total_challenges} challenges? [y/n]?')
+            f'Do you want to go ahead and download {total_challenges} challenges? [y/n]?')
         ans: str = input()
 
         if ans == 'y':
             print('The download will begin now')
-            self.get_data(total_pages, total_challenges)
+            self.get_data2(total_pages, total_challenges)
         else:
             print('Program terminated')
             sys.exit()
@@ -96,7 +89,7 @@ class setUp:
             print('connecting database')
             my_db = dbConnect(db_Config)
             print(' database connected')
-            bar = Bar('Processing', max=total_pages)
+            bar = Bar('Processing', max=int(total_pages))
             for i in range(1, int(total_pages) + 1):
                 params['page'] = i
 
@@ -115,39 +108,47 @@ class setUp:
             bar.finish()
             print('All data downloaded')
         except Exception as e:
+            print('hello')
             print(e)
 
-
+# /Users/mahirdhall/Desktop/WebScrapping
 # Code to add data to json file
 #  --------------------------------------------------------------------------
-# def get_data(self, total_pages: int, total_challenges: int):
-#     ''' This function downloads all the data based on the given config '''
+    def get_data2(self, total_pages: int, total_challenges: int):
+        ''' Fetches the API, formats and stores as JSON in given directory '''
 
-#     params = self.params
-#      curr_dir = os.path.join(self.storage_directory,
-#                               f'data {self.start_date_start_range}')
-#       os.mkdir(curr_dir)
+        params = self.params
+        directory_name: str = f'challengeData_{self.start_date_start_range.date()}_{self.end_date_start_range.date()}'
+        curr_dir = os.path.join(self.storage_directory,
+                                directory_name)
 
-#        for i in range(1, int(total_pages) + 1):
-#             params['page'] = i
+        try:
+            os.mkdir(curr_dir)
+        except Exception as e:
+            print("--- Directory exists ---", e)
 
-#             response = requests.get(
-#                 'http://api.topcoder.com/v5/challenges/', params=params,
-#                 timeout=2.00)
+        for i in range(1, int(total_pages) + 1):
+            params['page'] = i
 
-#             if response.ok:
-#                 challenge_list = response.json()
+            response = requests.get(
+                'http://api.topcoder.com/v5/challenges/', params=params,
+                timeout=2.00)
 
-#                 my_file = open(os.path.join(
-#                     curr_dir, f'page {i}.json'), "w")
-#                 with my_file:
-#                     bar = Bar('Processing', max=params["perPage"])
-#                     for challenge in challenge_list:
-#                         # print(challenge)
-#                         json.dump(challenge, my_file, indent=4)
-#                         bar.next()
+            if response.ok:
+                challenge_list = response.json()
 
-#                     bar.finish()
-#                     my_file.close()
-#             print('Downloaded and store data from page {i}')
-#         print('All data downloaded')
+                my_file = open(os.path.join(
+                    curr_dir, f'page {i}.json'), "w")
+                with my_file:
+                    bar = Bar('Processing', max=params["perPage"])
+                    for challenge in challenge_list:
+                        # print(challenge)
+                        formatted_challenge = format_challenge(challenge)
+
+                        json.dump(formatted_challenge, my_file, indent=4)
+                        bar.next()
+
+                    bar.finish()
+                    my_file.close()
+            print('Downloaded and store data from page {i}')
+        print('All data downloaded')
