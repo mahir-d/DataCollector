@@ -4,7 +4,7 @@ from os import listdir, getcwd, chdir
 from os.path import isfile, join, isdir
 from typing import Any, Dict, List, Set
 from dbConnect import dbConnect
-from challenge_functions import fetch_challenge_registrants, fetch_challenge_submissions
+from fetch_functions import fetch_challenge_registrants, fetch_challenge_submissions, fetch_member_data
 from progress.bar import Bar
 
 class Uploader:
@@ -82,11 +82,21 @@ class Uploader:
             new_member_obj = {
                 "challengeId": challenge_id,
                 "memberHandle": members,
-                "submission": 0 if members in submission_set else 1,
+                "submission": 1 if members in submission_set else 0,
                 "winningPosition": winner_dict[members] if members in winner_dict else 0
             }
             self.db_obj.upload_data(new_member_obj, "Challenge_Member_Mapping")
 
+
+    def upload_members(self, member_list: List[str]):
+        ''' Fetches from API and Uploads member to the database from the given member_list '''
+        for member in member_list:
+            try:
+                processed_member = fetch_member_data(member)
+            except Exception as e:
+                print(e)
+            else:
+                self.db_obj.upload_data(processed_member, "Members")
 
 
 
@@ -95,5 +105,12 @@ class Uploader:
 if __name__ == "__main__":
     up = Uploader()
 
-    up.uploadChallenges(
-        "/Users/mahirdhall/Desktop/WebScrapping/challengeData_2020-01-01_2020-02-02")
+    # up.uploadChallenges(
+    #     "/Users/mahirdhall/Desktop/WebScrapping/challengeData_2020-01-01_2020-02-02")
+    
+    mem = ["CreativeDroid",
+    "ShindouHikaru",
+    "talesforce",
+    "Samkg143",
+    ]
+    up.upload_members(mem)
