@@ -1,10 +1,11 @@
-''' This file Contains functions related to all functions related to Challenge '''
+''' This file Contains functions related to fetching from Topcoder API '''
+from typing import List
 import requests
 from requests.exceptions import HTTPError
 import os
 import json
 from progress.bar import Bar
-from process import format_challenge
+from process import format_challenge, format_member
 
 
 def get_data(total_pages: int, total_challenges: int, params, start_date_start_range, end_date_start_range, storage_directory):
@@ -30,7 +31,7 @@ def get_data(total_pages: int, total_challenges: int, params, start_date_start_r
             challenge_list = response.json()
             
             my_file = open(os.path.join(
-                curr_dir, f'page {i}.json'), "w")
+                curr_dir, f'page{i}.json'), "w")
             
             with my_file:
                 bar = Bar('Processing', max=params["perPage"])
@@ -95,6 +96,24 @@ def fetch_challenge_submissions(challenge_id: str):
         for member in member_submission_data:
             submission_set.add(member["createdBy"])
         return submission_set
+
+
+def fetch_member_data(member: str):
+    ''' Fetches member data from the given memeberHandle '''
+
+    
+
+    response = requests.get(
+        f'https://api.topcoder.com/v5/members/{member}/stats',
+        timeout=2.00)
+    
+    if response.ok:
+        member_json = response.json()
+        processed_member = format_member(member_json[0])
+        return processed_member
+    else:
+        print(f'Error: Could not download data for member {member}')
+
 
 
 
