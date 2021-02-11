@@ -1,6 +1,6 @@
 ''' This file contains methods to parse json objects into correct format '''
 
-from typing import Dict
+from typing import Any, Dict
 from utility import parse_iso_dt, calculate_prizes
 
 
@@ -35,3 +35,38 @@ def format_challenge(challenge_obj):
     new_obj["forumId"] = challenge_obj["legacy"]["forumId"]
 
     return new_obj
+
+
+def format_member(member_obj):
+    new_obj: Dict[str,Any] = {}
+    # 0 means true, 1 means false
+    new_obj["userId"] = member_obj["userId"]
+    new_obj["memberHandle"] = member_obj["handle"]
+    
+    new_obj["DEVELOP"] = 0
+    if member_obj["DEVELOP"] and member_obj["DEVELOP"]["challenges"] > 1:
+        new_obj["DEVELOP"] = 1
+
+    new_obj["DESIGN"] = 0
+    if member_obj["DESIGN"] and member_obj["DESIGN"]["challenges"] > 1:
+        new_obj["DESIGN"] = 1
+    
+    new_obj["DATA_SCIENCE"] = 0
+    if member_obj["DATA_SCIENCE"] and member_obj["DATA_SCIENCE"]["challenges"] > 1:
+        new_obj["DATA_SCIENCE"] = 1
+
+    new_obj["maxRating"] = member_obj["maxRating"]["rating"]
+
+    new_obj["track"] = ""
+    if member_obj["maxRating"].get("track"):
+        new_obj["track"] = member_obj["maxRating"]["track"]
+    
+    new_obj["subTrack"] = ""
+    if member_obj["maxRating"].get("subTrack"):
+        new_obj["subTrack"] = member_obj["maxRating"]["subTrack"] 
+    
+    new_obj["registrations"] = member_obj["challenges"]
+    new_obj["wins"] = member_obj["wins"]
+
+    return new_obj
+
