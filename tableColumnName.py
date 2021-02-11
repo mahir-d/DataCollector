@@ -8,3 +8,7 @@ class TableColumnName:
         "col_name_create": "challengeId VARCHAR(50), memberHandle VARCHAR(50), submission Bool, winningPosition INT(255)",
         "col_name_insert": "challengeId, memberHandle, submission, winningPosition"
     })
+    Members = dict({
+        "col_name_create": "userId INT(255), memberHandle VARCHAR(512) PRIMARY KEY, DEVELOP Bool, DESIGN Bool, DATA_SCIENCE Bool, maxRating INT(255), track VARCHAR(512), subTrack VARCHAR(512), registrations INT(255), wins INT(255)",
+        "col_name_insert": "userId, memberHandle , DEVELOP , DESIGN, DATA_SCIENCE, maxRating, track , subTrack , registrations , wins"
+    })
