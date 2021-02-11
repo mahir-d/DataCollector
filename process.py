@@ -1,6 +1,6 @@
 ''' This file contains methods to parse json objects into correct format '''
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 from utility import parse_iso_dt, calculate_prizes
 
 
@@ -70,3 +70,22 @@ def format_member(member_obj):
 
     return new_obj
 
+
+def format_member_skills(member_skill_obj):
+
+    user_entered: List[str] = []
+    participation_skill: List[str] = []
+
+    for skill in member_skill_obj["skills"].keys():
+
+        
+
+        if member_skill_obj["skills"][skill]["sources"][0] == "CHALLENGE":
+            participation_skill.append(member_skill_obj["skills"][skill]["tagName"])
+        else:
+            user_entered.append(skill.tagName)
+
+    user_entered = ",".join(user_entered) if user_entered else ""
+    participation_skill = ",".join(participation_skill) if participation_skill else ""
+
+    return (user_entered, participation_skill)
