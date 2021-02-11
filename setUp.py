@@ -5,7 +5,7 @@ import json
 from progress.bar import Bar
 import os
 from dbConnect import dbConnect
-from challenge_functions import get_data
+from fetch_functions import get_data
 
 
 class setUp:

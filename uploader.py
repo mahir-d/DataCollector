@@ -4,7 +4,7 @@ from os import listdir, getcwd, chdir
 from os.path import isfile, join, isdir
 from typing import Any, Dict, List, Set
 from dbConnect import dbConnect
-from fetch_functions import fetch_challenge_registrants, fetch_challenge_submissions, fetch_member_data
+from fetch_functions import fetch_challenge_registrants, fetch_challenge_submissions, fetch_member_data, fetch_member_skills
 from progress.bar import Bar
 
 class Uploader:
@@ -30,15 +30,7 @@ class Uploader:
         file_list = [file for file in listdir(directory)]
         
         if file_list:
-            # Iterate over json challenges one file at a time
-            # for each challenge one at a time, fetch its registrant members
-            # fetch submission for the challenge
-            # upload challenge to challenge table along with fill intermidiate table
-            
-            # Changes current working directory to the given directory
             chdir(directory)
-            
-
             file_progress = Bar("ChargingBar", max=len(file_list))
             for file_name in file_list:
                 try:
@@ -93,6 +85,7 @@ class Uploader:
         for member in member_list:
             try:
                 processed_member = fetch_member_data(member)
+                processed_member["user_entered"], processed_member["participation_skill"] = fetch_member_skills(member)
             except Exception as e:
                 print(e)
             else:
@@ -110,8 +103,9 @@ if __name__ == "__main__":
     
     mem = ["CreativeDroid",
     "ShindouHikaru",
+    "mahirdhall",
     "talesforce",
     "Samkg143",
-    "mahir_zzz"
+    "mahir_zzz",
     ]
     up.upload_members(mem)
