@@ -2,8 +2,6 @@
 import mysql.connector
 from mysql.connector import errorcode
 import argparse
-import json
-from utility import parse_iso_dt
 import tableColumnName
 
 class dbConnect:
@@ -24,6 +22,7 @@ class dbConnect:
         # Checks if the table exists otherwise creates it
         self.check_table("Challenges")
         self.check_table("Challenge_Member_Mapping")
+        self.check_table("Members")
         
 
     def connect_db_server(self):
