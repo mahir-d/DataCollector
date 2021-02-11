@@ -7,7 +7,7 @@ from utility import parse_iso_dt, calculate_prizes
 def format_challenge(challenge_obj):
     ''' Converts challenge_obj variables in correct required format '''
     new_obj = {}
-    new_obj["challengeID"] = challenge_obj["id"]
+    new_obj["challengeId"] = challenge_obj["id"]
     new_obj["legacyId"] = int(challenge_obj["legacyId"])
     new_obj["directProjectId"] = challenge_obj["legacy"]["directProjectId"]
     new_obj["status"] = challenge_obj["status"]
