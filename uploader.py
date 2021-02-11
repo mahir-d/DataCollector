@@ -112,5 +112,6 @@ if __name__ == "__main__":
     "ShindouHikaru",
     "talesforce",
     "Samkg143",
+    "mahir_zzz"
     ]
     up.upload_members(mem)

@@ -57,11 +57,11 @@ def format_member(member_obj):
 
     new_obj["maxRating"] = member_obj["maxRating"]["rating"]
 
-    new_obj["track"] = ""
+    new_obj["track"] = None
     if member_obj["maxRating"].get("track"):
         new_obj["track"] = member_obj["maxRating"]["track"]
     
-    new_obj["subTrack"] = ""
+    new_obj["subTrack"] = None
     if member_obj["maxRating"].get("subTrack"):
         new_obj["subTrack"] = member_obj["maxRating"]["subTrack"] 
     
