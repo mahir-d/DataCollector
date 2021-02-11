@@ -4,7 +4,7 @@ from mysql.connector import errorcode
 import argparse
 import json
 from utility import parse_iso_dt
-
+import tableColumnName
 
 class dbConnect:
     def __init__(self, args) -> None:
@@ -24,6 +24,7 @@ class dbConnect:
         # Checks if the table exists otherwise creates it
         self.check_table("Challenges")
         self.check_table("Challenge_Member_Mapping")
+        
 
     def connect_db_server(self):
         ''' Makes the connection with the MySql database usin the provided config '''
@@ -56,46 +57,36 @@ class dbConnect:
     def check_table(self, table_name: str):
         ''' Checks if table exists otherwise creates it in database '''
         db_obj = self.db_connection.cursor()
+        
+        try:
+            table_col_obj = tableColumnName.TableColumnName()
+            db_obj.execute(
+                f'CREATE TABLE IF NOT EXISTS {table_name} ({table_col_obj.__getattribute__(table_name)["col_name_create"]})')
+            print('table created')
+        except mysql.connector.Error as err:
+            print(f'table could not be created cause of Error: {err}')
 
-        j_file = open("tableColumnName.json", "r")
-        with j_file:
-            json_data = j_file.read()
-            my_dict = json.loads(json_data)
-            try:
-                db_obj.execute(
-                    f'CREATE TABLE IF NOT EXISTS {table_name} ({my_dict[table_name]["col_name_create"]})')
-                print('table created')
-            except mysql.connector.Error as err:
-                print(f'table could not be created cause of Error: {err}')
 
-    def upload_data(self, json_data, table_name) -> bool:
-
+    def upload_data(self, challenge_data, table_name)->bool:
+        ''' Uploads the given data to the appropriate Database table '''
         db_obj = self.db_connection.cursor()
-
-        j_file = open("tableColumnName.json", "r")
-        with j_file:
-            table_data = j_file.read()
-            my_dict = json.loads(table_data)
-
-            for challenge_data in json_data:
-                cd = challenge_data
-                print(type(cd["created"]))
-                val_to_insert = (cd["id"], cd["name"], cd["legacyId"],
-                                 cd["status"], cd["track"], cd["type"], cd["legacy"]["forumId"], cd["legacy"]["directProjectId"], cd["projectId"], cd["description"], parse_iso_dt(cd["created"]), parse_iso_dt(cd["startDate"]), parse_iso_dt(cd["endDate"]), parse_iso_dt(cd["registrationStartDate"]), parse_iso_dt(cd["registrationEndDate"]), parse_iso_dt(cd["submissionStartDate"]), parse_iso_dt(cd["submissionEndDate"]), "React", int(cd["numOfSubmissions"]), int(cd["numOfRegistrants"]), 4, 1000)
-                try:
-                    sql_query = f'INSERT INTO Challenges ({my_dict[table_name]["col_name_insert"]}) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
-
-                    db_obj.execute(sql_query, val_to_insert)
-                    self.db_connection.commit()
-
-                except mysql.connector.Error as err:
-                    if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                        print("Something is wrong with your user name or password")
-                    elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                        print("Database does not exist")
-                    else:
-                        print(err)
-
+        table_col_obj = tableColumnName.TableColumnName()
+        val_to_insert = [val for val in challenge_data.values()]
+        s_list = ["%s" for i in range(len(val_to_insert))]
+        s_str = ",".join(s_list)
+        try:
+            sql_query = f'INSERT INTO {table_name} ({table_col_obj.__getattribute__(table_name)["col_name_insert"]}) VALUES ({s_str})'
+            # Check for duplicate entries, try avoiding an Exception for that
+            # 1062 (23000): Duplicate entry '17920d33-b96d-49f4-a399-7dde56b4c2f0' for key 'challenges.PRIMARY'
+            db_obj.execute(sql_query, val_to_insert)
+            self.db_connection.commit()
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Something is wrong with your user name or password")
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print("Database does not exist")
+            else:
+                print(err)
 
 def main(args):
     db_Config = {
