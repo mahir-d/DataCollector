@@ -6,10 +6,9 @@ from typing import Any, Dict, List, Set
 from dbConnect import dbConnect
 from fetch_functions import fetch_challenge_registrants, fetch_challenge_submissions, fetch_member_data, fetch_member_skills
 from progress.bar import Bar
-
 class Uploader:
     ''' Ths class contains functions to uplod data to the database '''
-    def __init__(self) -> None:
+    def __init__(self, directory: str) -> None:
         self.db_config = {
             "username": "root",
             "hostname": "localhost",
@@ -18,8 +17,15 @@ class Uploader:
             "database": "dataCollector",
             "table_name": "Challenges"
         }
+        self.member_list: List[str] = []
         self.db_obj = dbConnect(self.db_config)
+        self.storage_directory = directory
+        # call the upload challenge function
+        self.uploadChallenges(self.storage_directory) 
+        # call the member upload function
+        self.upload_members(self.member_list)
 
+    # directory can be called in the constructor
     def uploadChallenges(self,directory):
         ''' Loads processed challenge from json file and upload it to DB while 
             fetching registrants and submissions from the API
@@ -27,7 +33,7 @@ class Uploader:
         if not isdir(directory):
             raise NotADirectoryError(f'{directory} is not a valid directory')
         
-        file_list = [file for file in listdir(directory)]
+        file_list = [file for file in listdir(directory) if file.endswith('.json')]
         
         if file_list:
             chdir(directory)
@@ -70,7 +76,8 @@ class Uploader:
         registrants_list: List[str] = fetch_challenge_registrants(challenge_id)
 
         for members in registrants_list:
-            
+            # append members to a list for future use
+            self.member_list.append(members)
             new_member_obj = {
                 "challengeId": challenge_id,
                 "memberHandle": members,
@@ -96,16 +103,5 @@ class Uploader:
 
 
 if __name__ == "__main__":
-    up = Uploader()
+    up = Uploader("/Users/mahirdhall/Desktop/WebScrapping/challengeData_2020-01-01_2020-02-02")
 
-    # up.uploadChallenges(
-    #     "/Users/mahirdhall/Desktop/WebScrapping/challengeData_2020-01-01_2020-02-02")
-    
-    mem = ["CreativeDroid",
-    "ShindouHikaru",
-    "mahirdhall",
-    "talesforce",
-    "Samkg143",
-    "mahir_zzz",
-    ]
-    up.upload_members(mem)

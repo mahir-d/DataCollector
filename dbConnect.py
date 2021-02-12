@@ -84,6 +84,9 @@ class dbConnect:
                 print("Something is wrong with your user name or password")
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
                 print("Database does not exist")
+            elif err.errno == 1406:
+                print(challenge_data["participation_skill"])
+                exit()
             else:
                 print(err)
 

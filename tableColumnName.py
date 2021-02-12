@@ -9,6 +9,6 @@ class TableColumnName:
         "col_name_insert": "challengeId, memberHandle, submission, winningPosition"
     })
     Members = dict({
-        "col_name_create": "userId INT(255), memberHandle VARCHAR(512) PRIMARY KEY, DEVELOP Bool, DESIGN Bool, DATA_SCIENCE Bool, maxRating INT(255), track VARCHAR(512), subTrack VARCHAR(512), registrations INT(255), wins INT(255), user_entered VARCHAR(512), participation_skill VARCHAR(512)",
-        "col_name_insert": "userId, memberHandle , DEVELOP , DESIGN, DATA_SCIENCE, maxRating, track , subTrack , registrations , wins,  user_entered, participation_skill"
+        "col_name_create": "userId INT(255), memberHandle VARCHAR(512) PRIMARY KEY, DEVELOP Bool, DESIGN Bool, DATA_SCIENCE Bool, maxRating INT(255), track VARCHAR(512), subTrack VARCHAR(512), registrations INT(255), wins INT(255), user_entered MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, participation_skill MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL",
+        "col_name_insert": "userId, memberHandle , DEVELOP , DESIGN, DATA_SCIENCE, maxRating, track , subTrack , registrations , wins, user_entered, participation_skill"
     })

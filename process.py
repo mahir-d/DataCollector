@@ -83,9 +83,11 @@ def format_member_skills(member_skill_obj):
         if member_skill_obj["skills"][skill]["sources"][0] == "CHALLENGE":
             participation_skill.append(member_skill_obj["skills"][skill]["tagName"])
         else:
-            user_entered.append(skill.tagName)
+            user_entered.append(member_skill_obj["skills"][skill]["tagName"])
 
     user_entered = ",".join(user_entered) if user_entered else ""
     participation_skill = ",".join(participation_skill) if participation_skill else ""
 
     return (user_entered, participation_skill)
+
+
