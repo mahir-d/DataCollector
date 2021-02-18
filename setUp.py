@@ -27,7 +27,7 @@ class setUp:
             'tracks[]': [self.track],
             'sortBy': 'startDate',
             'startDateStart': self.start_date_start_range.isoformat(),
-            'endDateEnd': self.end_date_start_range.isoformat(), #Change it to startDateEnd
+            'startDateEnd': self.end_date_start_range.isoformat(),
             'sortOrder': self.sortedOrder
         }
 

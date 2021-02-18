@@ -9,7 +9,14 @@ def format_challenge(challenge_obj):
     new_obj = {}
     new_obj["challengeId"] = challenge_obj["id"]
     new_obj["legacyId"] = int(challenge_obj["legacyId"])
-    new_obj["directProjectId"] = challenge_obj["legacy"]["directProjectId"]
+
+    if "directProjectId" in challenge_obj["legacy"]:
+        new_obj["directProjectId"] = challenge_obj["legacy"]["directProjectId"]  
+    elif "directProjectId" in challenge_obj:
+        print("directProjectId" in challenge_obj)
+        new_obj["directProjectId"] = challenge_obj["directProjectId"]
+    else:
+        new_obj["directProjectId"] = 0
     new_obj["status"] = challenge_obj["status"]
     new_obj["trackType"] = challenge_obj["track"]
     new_obj["type"] = challenge_obj["type"]
@@ -85,8 +92,9 @@ def format_member_skills(member_skill_obj):
         else:
             user_entered.append(member_skill_obj["skills"][skill]["tagName"])
 
-    user_entered = ",".join(user_entered) if user_entered else ""
-    participation_skill = ",".join(participation_skill) if participation_skill else ""
+    user_entered = ",".join(user_entered) if user_entered else None
+    participation_skill = ",".join(
+        participation_skill) if participation_skill else None
 
     return (user_entered, participation_skill)
 
