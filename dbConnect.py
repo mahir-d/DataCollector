@@ -1,9 +1,10 @@
 ''' This file contains methods to connect to Mysql database '''
+from typing import List, Set
 import mysql.connector
 from mysql.connector import errorcode
 import argparse
 import tableColumnName
-
+from progress.bar import Bar
 class dbConnect:
     def __init__(self, args) -> None:
         print(args)
@@ -64,6 +65,29 @@ class dbConnect:
             print('table created')
         except mysql.connector.Error as err:
             print(f'table could not be created cause of Error: {err}')
+    
+    def check_member(self, member_set: Set[str]) -> Set[str]:
+        ''' Checks if the member already exists in the database '''
+        db_obj = self.db_connection.cursor()
+
+        try:
+            db_obj.execute(
+                f'SELECT memberHandle FROM Members')
+
+            existing_member_set: List[str] = list(
+                [memberHandle[0] for memberHandle in db_obj])
+            member_check = Bar(
+                "Check Members Exists", max=len(existing_member_set))
+            for memberHandle in existing_member_set:
+
+                if memberHandle in member_set:
+                    member_set.remove(memberHandle)
+                member_check.next()
+            member_check.finish()
+            return member_set
+
+        except mysql.connector.Error as err:
+            print(f'Error: {err}')
 
 
     def upload_data(self, challenge_data, table_name)->bool:
