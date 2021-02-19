@@ -12,14 +12,22 @@ class setUp:
     ''' This class sets up the data calls based on the config provided'''
 
     def __init__(self, argsParsedData):
-        # print(argsParsedData)
-        self.storage_directory = argsParsedData.Path
-        # self.storage_directory = "/Users/mahirdhall/Desktop/WebScrapping"
-        self.start_date_start_range = argsParsedData.Start_date
-        self.end_date_start_range = argsParsedData.End_date
-        self.status = argsParsedData.Status
-        self.sortedOrder = argsParsedData.SortedOrder
-        self.track = argsParsedData.track
+        # # print(argsParsedData)
+        # self.storage_directory = argsParsedData.Path
+        # # self.storage_directory = "/Users/mahirdhall/Desktop/WebScrapping"
+        # self.start_date_start_range = argsParsedData.Start_date_start
+        # self.start_date_end_range = argsParsedData.Start_date_end
+        # self.status = argsParsedData.Status
+        # self.sortedOrder = argsParsedData.SortedOrder
+        # self.track = argsParsedData.track
+
+        self.storage_directory = argsParsedData["storage_directory"]
+        self.start_date_start_range = argsParsedData["Start_date_start"]
+        self.start_date_end_range = argsParsedData["Start_date_end"]
+        self.status = argsParsedData["Status"]
+        self.sortedOrder = argsParsedData["SortedOrder"]
+        self.track = argsParsedData['track']
+
         self.params = {
             'page': 1,
             'perPage': 50,
@@ -27,7 +35,7 @@ class setUp:
             'tracks[]': [self.track],
             'sortBy': 'startDate',
             'startDateStart': self.start_date_start_range.isoformat(),
-            'startDateEnd': self.end_date_start_range.isoformat(),
+            'startDateEnd': self.start_date_end_range.isoformat(),
             'sortOrder': self.sortedOrder
         }
 
@@ -62,15 +70,17 @@ class setUp:
         total_challenges = response.headers["X-Total"]
         print(
             f'Do you want to go ahead and download {total_challenges} challenges? [y/n]?')
-        ans: str = input()
-
-        if ans == 'y':
-            print('The download will begin now')
-            get_data(total_pages, total_challenges, self.params,
-                     self.start_date_start_range, self.end_date_start_range, self.storage_directory)
-        else:
-            print('Program terminated')
-            sys.exit()
+        # ans: str = input()
+        print('The download will begin now')
+        get_data(total_pages, total_challenges, self.params,
+                 self.start_date_start_range, self.start_date_end_range, self.storage_directory)
+        # if ans == 'y':
+        #     print('The download will begin now')
+        #     get_data(total_pages, total_challenges, self.params,
+        #              self.start_date_start_range, self.start_date_end_range, self.storage_directory)
+        # else:
+        #     print('Program terminated')
+        #     sys.exit()
 
 
 # This store directly to DB

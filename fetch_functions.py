@@ -11,7 +11,7 @@ from process import format_challenge, format_member, format_member_skills
 def get_data(total_pages: int, total_challenges: int, params, start_date_start_range, end_date_start_range, storage_directory):
     ''' Fetches the API, formats and stores as JSON in given directory '''
 
-    directory_name: str = f'challengeData_{start_date_start_range.date()}_{end_date_start_range.date()}'
+    directory_name: str = f'challengeData_{start_date_start_range}_{end_date_start_range}'
     curr_dir = os.path.join(storage_directory,
                             directory_name)
 
@@ -100,6 +100,7 @@ def fetch_challenge_submissions(challenge_id: str):
 
 def fetch_member_data(member: str):
     ''' Fetches member data from the given memeberHandle '''
+    member = member.lower()
     response = requests.get(
         f'https://api.topcoder.com/v5/members/{member}/stats',
         timeout=2.00)
@@ -114,6 +115,7 @@ def fetch_member_data(member: str):
 
 
 def fetch_member_skills(member:str):
+    member = member.lower()
     response = requests.get(
         f'https://api.topcoder.com/v5/members/{member}/skills',
         timeout=2.00)
