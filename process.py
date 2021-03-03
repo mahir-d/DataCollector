@@ -11,10 +11,7 @@ def format_challenge(challenge_obj):
     new_obj["legacyId"] = int(challenge_obj["legacyId"])
 
     if "directProjectId" in challenge_obj["legacy"]:
-        new_obj["directProjectId"] = challenge_obj["legacy"]["directProjectId"]  
-    elif "directProjectId" in challenge_obj:
-        print("directProjectId" in challenge_obj)
-        new_obj["directProjectId"] = challenge_obj["directProjectId"]
+        new_obj["directProjectId"] = challenge_obj["legacy"]["directProjectId"]
     else:
         new_obj["directProjectId"] = 0
     new_obj["status"] = challenge_obj["status"]
@@ -39,7 +36,10 @@ def format_challenge(challenge_obj):
     new_obj["technologies"] = ",".join(challenge_obj["tags"])
     new_obj["numberOfSubmissions"] = challenge_obj["numOfSubmissions"]
     new_obj["numberOfRegistrants"] = challenge_obj["numOfRegistrants"]
-    new_obj["forumId"] = challenge_obj["legacy"]["forumId"]
+    if "forumId" in challenge_obj["legacy"]:
+        new_obj["forumId"] = challenge_obj["legacy"]["forumId"]
+    else:
+        new_obj["forumId"] = 0
 
     return new_obj
 

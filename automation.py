@@ -2,6 +2,7 @@ from setUp import setUp
 from uploader import Uploader
 from datetime import datetime
 from utility import valid_date
+import time
 
 
 class Automation:
@@ -13,7 +14,7 @@ class Automation:
 
     def fetch_challenges(self):
 
-        for i in range(2):
+        for i in range(12):
             month = i + 1
             Start_date_end = ""
             Start_date_start = ""
@@ -50,5 +51,7 @@ class Automation:
 
 
 if __name__ == '__main__':
-    A = Automation(2016)
+    start = time.perf_counter()
+    A = Automation(2020)
     A.fetch_challenges()
+    print(round(time.perf_counter() - start, 2))
