@@ -5,6 +5,7 @@ from mysql.connector import errorcode
 import argparse
 import tableColumnName
 from progress.bar import Bar
+import xlsxwriter
 class dbConnect:
     def __init__(self, args) -> None:
         print(args)
@@ -113,6 +114,46 @@ class dbConnect:
             else:
                 print(err)
 
+    def excel_uploader(self, table_name: str) -> None:
+        ''' Uploads sql data to excel sheet '''
+        db_obj = self.db_connection.cursor()
+        table_col_obj = tableColumnName.TableColumnName()
+        col_names: List[str] = table_col_obj.__getattribute__(table_name)[
+            "col_name_insert"].split(",")
+
+        workbook = xlsxwriter.Workbook(f'{table_name}.xlsx')
+        worksheet = workbook.add_worksheet()
+
+        #Add column names
+        row: int = 0
+        col: int = 0
+        for col_name in col_names:
+            worksheet.write(row, col, col_name)
+            col += 1
+        row += 1
+        col = 0
+        try:
+            sql_query = f'SELECT * FROM {table_name};'
+            db_obj.execute(sql_query)
+            for data in db_obj:
+                for col_data in data:
+                    worksheet.write(row, col, col_data)
+                    col += 1
+                row += 1
+                col = 0
+        except mysql.connector.Error as err:
+            print(err)
+
+        workbook.close()
+
+
+
+
+
+
+
+
+
 def main(args):
     db_Config = {
         "username": "root",
@@ -123,6 +164,7 @@ def main(args):
         "table_name": "Challenges"
     }
     db = dbConnect(db_Config)
+    db.excel_uploader("Challenge_Member_Mapping")
 
 
 if __name__ == "__main__":
