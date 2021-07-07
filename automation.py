@@ -5,7 +5,8 @@ from setUp import setUp
 from uploader import Uploader
 from datetime import datetime
 from utility import valid_date
-import time
+import argparse
+import os
 
 
 class Automation:
@@ -62,9 +63,52 @@ class Automation:
 
 
 if __name__ == '__main__':
-    start = time.perf_counter()
+    
+    ''' ---------------------------ArgParser starts here -----------------------'''
 
-    A = Automation(
-        2020, "Cancelled", "/Users/mahirdhall/Desktop/WebScrapping")
-    A.fetch_challenges()
-    print(round(time.perf_counter() - start, 2))
+    parser = argparse.ArgumentParser(prog='init',
+                                     usage='%(prog)s [options] path',
+                                     description='Sets up the configuration\
+                                        for the data fetcher',
+                                     epilog="Made by Mahir Dhall"
+                                     )
+
+    parser.add_argument('Start_year',help="Please enter start year to fetch challenges and members from", type=int)
+    
+    parser.add_argument('End_year', help="Please enter end year to fetch challenges and members till inclusive", type=int)
+
+    parser.add_argument('Status',
+                        choices=['New', 'Draft', 'Cancelled', 'Active',
+                                 'Completed'],
+                        default='Completed',
+                        help="Please choose the status of the challenges\
+                            to be fetched. Default set as Completed")
+    
+    parser.add_argument('Path', metavar='path', type=str,
+                        help="Path to the directory to store data")
+
+    args = parser.parse_args()
+    # Checks if the path to the directory is valid
+    if not os.path.isdir(args.Path):
+        msg = "Path should be a valid directory"
+        raise argparse.ArgumentTypeError(msg)
+
+    if args.Start_year <= 2000 or args.Start_year > 2050:
+        msg = "Start_year should be greater than 2000"
+        raise argparse.ArgumentTypeError(msg)
+
+    if args.End_year <= 2000 or args.End_year > 2050:
+        msg = "End_year should be greater than 2000"
+        raise argparse.ArgumentTypeError(msg)
+    
+    if args.Start_year > args.End_year:
+        msg = "Start_year should be less than End_year"
+        raise argparse.ArgumentTypeError(msg)
+
+    
+
+    for year in range(args.Start_year, args.End_year + 1):
+        A = Automation(
+            year, args.Status, args.Path)
+        A.fetch_challenges()
+

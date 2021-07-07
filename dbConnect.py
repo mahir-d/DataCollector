@@ -1,4 +1,4 @@
-''' This file contains methods to connect to Mysql database '''
+''' This file contains methods to connect to Mysql database and convert db to excel sheet '''
 from typing import List, Set
 import mysql.connector
 from mysql.connector import errorcode
@@ -6,11 +6,11 @@ import argparse
 import tableColumnName
 from progress.bar import Bar
 import xlsxwriter
-
+from dotenv import load_dotenv
+from os import environ
 
 class dbConnect:
     def __init__(self, args) -> None:
-        print(args)
         self.db_username = args['username']
         self.db_hostname = args['hostname']
         self.db_password = args['password']
@@ -161,46 +161,52 @@ class dbConnect:
         workbook.close()
 
 
-def main(args):
-    db_Config = {
-        "username": "root",
-        "hostname": "localhost",
-        "password": "password",
-        "port": "3306",
-        "database": "dataCollector_v2",
-        "table_name": "Challenges"
-    }
-    db = dbConnect(db_Config)
-    db.excel_uploader("Challenge_Member_Mapping")
-
-
 if __name__ == "__main__":
+
+
     parser = argparse.ArgumentParser(prog='dbConnector',
                                      usage='%(prog)s [options] path',
                                      description='connects the Mysql databse to upload the data',
                                      epilog="Made by Mahir Dhall"
                                      )
 
-    parser.add_argument('-ho', '--hostname', type=str, metavar='hostname',
-                        default='localhost',
-                        help="Optional hostname, default set as localhost")
+    parser.add_argument('Table_name', choices=['Challenge_Member_Mapping', 'Challenges', 'Members'], default='Challenges', help="Please select table name to be converted to excel sheet")
 
-    parser.add_argument('-po', '--port', type=str, metavar="port",
-                        default='3306', help="optional port number, default set as 3306")
-
-    parser.add_argument('-u', '--username', type=str, default="root",
-                        help="optional username, default set as root")
-
-    parser.add_argument('-pa', '--password', default='password', type=str, metavar='password',
-                        help="optional password, default set as an empty string '' ")
-
-    parser.add_argument('-db', '--database', metavar='database_name', type=str,
-                        help='optional Database name, default set as dataCollector',
-                        default='dataCollector')
-
-    parser.add_argument('-t', '--table_name', default='Challenges',
-                        help='optional Table name, default set as Challenges')
 
     args = parser.parse_args()
 
-    main(args)
+    load_dotenv()
+    db_Config = {
+        "username": environ.get("dbUsername"),
+            "hostname": environ.get("dbHostname"),
+            "password": environ.get("dbPassword"),
+            "port": environ.get("dbPort"),
+            "database": environ.get("databaseName"),
+            "table_name": "Challenges"
+    }
+
+    db = dbConnect(db_Config)
+    db.excel_uploader(args.Table_name)
+    
+
+    # parser.add_argument('-ho', '--hostname', type=str, metavar='hostname',
+    #                     default='localhost',
+    #                     help="Optional hostname, default set as localhost")
+
+    # parser.add_argument('-po', '--port', type=str, metavar="port",
+    #                     default='3306', help="optional port number, default set as 3306")
+
+    # parser.add_argument('-u', '--username', type=str, default="root",
+    #                     help="optional username, default set as root")
+
+    # parser.add_argument('-pa', '--password', default='password', type=str, metavar='password',
+    #                     help="optional password, default set as an empty string '' ")
+
+    # parser.add_argument('-db', '--database', metavar='database_name', type=str,
+    #                     help='optional Database name, default set as dataCollector',
+    #                     default='dataCollector')
+
+    # parser.add_argument('-t', '--table_name', default='Challenges',
+    #                     help='optional Table name, default set as Challenges')
+
+    

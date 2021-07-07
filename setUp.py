@@ -1,4 +1,3 @@
-''' This file '''
 import sys
 import requests
 import json
@@ -68,8 +67,8 @@ class setUp:
 
         total_pages = response.headers["X-Total-Pages"]
         total_challenges = response.headers["X-Total"]
-        print(
-            f'Do you want to go ahead and download {total_challenges} challenges? [y/n]?')
+        # print(
+        #     f'Do you want to go ahead and download {total_challenges} challenges? [y/n]?')
         # ans: str = input()
         print('The download will begin now')
         get_data(total_pages, total_challenges, self.params,

@@ -1,23 +1,25 @@
 ''' This file contains fuctions to upload processed data to database '''
 import json
-from os import listdir, getcwd, chdir
+from os import listdir, getcwd, chdir, environ
 from os.path import isfile, join, isdir
 from typing import Any, Dict, List, Set
 from dbConnect import dbConnect
 from fetch_functions import fetch_challenge_registrants, fetch_challenge_submissions, fetch_member_data, fetch_member_skills
 from progress.bar import Bar
-
+from dotenv import load_dotenv
 
 class Uploader:
     ''' Ths class contains functions to uplod data to the database '''
 
     def __init__(self, directory: str) -> None:
+        load_dotenv()
+
         self.db_config = {
-            "username": "root",
-            "hostname": "localhost",
-            "password": "password",
-            "port": "3306",
-            "database": "dataCollector_v2",
+            "username": environ.get("dbUsername"),
+            "hostname": environ.get("dbHostname"),
+            "password": environ.get("dbPassword"),
+            "port": environ.get("dbPort"),
+            "database": environ.get("databaseName"),
             "table_name": "Challenges"
         }
         self.member_set: Set[str] = set()
