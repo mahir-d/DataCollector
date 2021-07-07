@@ -1,4 +1,4 @@
-''' This file contains methods to connect to Mysql database '''
+''' This file contains methods to connect to Mysql database and convert db to excel sheet '''
 from typing import List, Set
 import mysql.connector
 from mysql.connector import errorcode
@@ -6,9 +6,11 @@ import argparse
 import tableColumnName
 from progress.bar import Bar
 import xlsxwriter
+from dotenv import load_dotenv
+from os import environ
+
 class dbConnect:
     def __init__(self, args) -> None:
-        print(args)
         self.db_username = args['username']
         self.db_hostname = args['hostname']
         self.db_password = args['password']
@@ -25,7 +27,6 @@ class dbConnect:
         self.check_table("Challenges")
         self.check_table("Challenge_Member_Mapping")
         self.check_table("Members")
-        
 
     def connect_db_server(self):
         ''' Makes the connection with the MySql database usin the provided config '''
@@ -58,7 +59,7 @@ class dbConnect:
     def check_table(self, table_name: str):
         ''' Checks if table exists otherwise creates it in database '''
         db_obj = self.db_connection.cursor()
-        
+
         try:
             table_col_obj = tableColumnName.TableColumnName()
             db_obj.execute(
@@ -66,7 +67,7 @@ class dbConnect:
             print('table created')
         except mysql.connector.Error as err:
             print(f'table could not be created cause of Error: {err}')
-    
+
     def check_member(self, member_set: Set[str]) -> Set[str]:
         ''' Checks if the member already exists in the database '''
         db_obj = self.db_connection.cursor()
@@ -90,8 +91,7 @@ class dbConnect:
         except mysql.connector.Error as err:
             print(f'Error: {err}')
 
-
-    def upload_data(self, challenge_data, table_name)->bool:
+    def upload_data(self, challenge_data, table_name) -> bool:
         ''' Uploads the given data to the appropriate Database table '''
         db_obj = self.db_connection.cursor()
         table_col_obj = tableColumnName.TableColumnName()
@@ -100,31 +100,32 @@ class dbConnect:
         s_str = ",".join(s_list)
         try:
             sql_query = f'INSERT INTO {table_name} ({table_col_obj.__getattribute__(table_name)["col_name_insert"]}) VALUES ({s_str})'
-            # Check for duplicate entries, try avoiding an Exception for that
-            # 1062 (23000): Duplicate entry '17920d33-b96d-49f4-a399-7dde56b4c2f0' for key 'challenges.PRIMARY'
             db_obj.execute(sql_query, val_to_insert)
             self.db_connection.commit()
+            return db_obj.lastrowid
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
                 print("Something is wrong with your user name or password")
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
                 print("Database does not exist")
             elif err.errno == 1406:
-                print(challenge_data["winners"])
+                print(err)
             else:
                 print(err)
+            return -1
 
     def excel_uploader(self, table_name: str) -> None:
         ''' Uploads sql data to excel sheet '''
         db_obj = self.db_connection.cursor()
         table_col_obj = tableColumnName.TableColumnName()
         col_names: List[str] = table_col_obj.__getattribute__(table_name)[
-            "col_name_insert"].split(",")
+            "sql_col_name_insert"].split(",")
 
         workbook = xlsxwriter.Workbook(f'{table_name}.xlsx')
         worksheet = workbook.add_worksheet()
+        format3 = workbook.add_format({'num_format': 'mm/dd/yy'})
 
-        #Add column names
+        # Add column names
         row: int = 0
         col: int = 0
         for col_name in col_names:
@@ -135,65 +136,77 @@ class dbConnect:
         try:
             sql_query = f'SELECT * FROM {table_name};'
             db_obj.execute(sql_query)
-            for data in db_obj:
-                for col_data in data:
-                    worksheet.write(row, col, col_data)
-                    col += 1
-                row += 1
-                col = 0
+
+            if table_name == "Challenges":
+                for data in db_obj:
+                    for col_data in data:
+                        if col >= 11 and col <= 16:
+                            worksheet.write(row, col, col_data, format3)
+                        else:
+                            worksheet.write(row, col, col_data)
+                        col += 1
+                    row += 1
+                    col = 0
+            else:
+                for data in db_obj:
+                    for col_data in data:
+                        worksheet.write(row, col, col_data)
+                        col += 1
+                    row += 1
+                    col = 0
+
         except mysql.connector.Error as err:
             print(err)
 
         workbook.close()
 
 
-
-
-
-
-
-
-
-def main(args):
-    db_Config = {
-        "username": "root",
-        "hostname": "localhost",
-        "password": "password",
-        "port": "3306",
-        "database": "dataCollector",
-        "table_name": "Challenges"
-    }
-    db = dbConnect(db_Config)
-    db.excel_uploader("Challenge_Member_Mapping")
-
-
 if __name__ == "__main__":
+
+
     parser = argparse.ArgumentParser(prog='dbConnector',
                                      usage='%(prog)s [options] path',
                                      description='connects the Mysql databse to upload the data',
                                      epilog="Made by Mahir Dhall"
                                      )
 
-    parser.add_argument('-ho', '--hostname', type=str, metavar='hostname',
-                        default='localhost',
-                        help="Optional hostname, default set as localhost")
+    parser.add_argument('Table_name', choices=['Challenge_Member_Mapping', 'Challenges', 'Members'], default='Challenges', help="Please select table name to be converted to excel sheet")
 
-    parser.add_argument('-po', '--port', type=str, metavar="port",
-                        default='3306', help="optional port number, default set as 3306")
-
-    parser.add_argument('-u', '--username', type=str, default="root",
-                        help="optional username, default set as root")
-
-    parser.add_argument('-pa', '--password', default='password', type=str, metavar='password',
-                        help="optional password, default set as an empty string '' ")
-
-    parser.add_argument('-db', '--database', metavar='database_name', type=str,
-                        help='optional Database name, default set as dataCollector',
-                        default='dataCollector')
-
-    parser.add_argument('-t', '--table_name', default='Challenges',
-                        help='optional Table name, default set as Challenges')
 
     args = parser.parse_args()
 
-    main(args)
+    load_dotenv()
+    db_Config = {
+        "username": environ.get("dbUsername"),
+            "hostname": environ.get("dbHostname"),
+            "password": environ.get("dbPassword"),
+            "port": environ.get("dbPort"),
+            "database": environ.get("databaseName"),
+            "table_name": "Challenges"
+    }
+
+    db = dbConnect(db_Config)
+    db.excel_uploader(args.Table_name)
+    
+
+    # parser.add_argument('-ho', '--hostname', type=str, metavar='hostname',
+    #                     default='localhost',
+    #                     help="Optional hostname, default set as localhost")
+
+    # parser.add_argument('-po', '--port', type=str, metavar="port",
+    #                     default='3306', help="optional port number, default set as 3306")
+
+    # parser.add_argument('-u', '--username', type=str, default="root",
+    #                     help="optional username, default set as root")
+
+    # parser.add_argument('-pa', '--password', default='password', type=str, metavar='password',
+    #                     help="optional password, default set as an empty string '' ")
+
+    # parser.add_argument('-db', '--database', metavar='database_name', type=str,
+    #                     help='optional Database name, default set as dataCollector',
+    #                     default='dataCollector')
+
+    # parser.add_argument('-t', '--table_name', default='Challenges',
+    #                     help='optional Table name, default set as Challenges')
+
+    

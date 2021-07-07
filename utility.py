@@ -1,7 +1,8 @@
+''' This file stores all the utility methods '''
+
 import datetime
 import argparse
 from typing import List, Dict
-''' This file stores all the utility methods '''
 
 '''
     Refernce to below code
