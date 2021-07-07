@@ -1,6 +1,6 @@
 <h1 align="center">Welcome to DataCollector 👋</h1>
 
-### 🏠 [Homepage](https://github.com/mahir-d/smart-construction-dashboard#readme)
+### 🏠 [Homepage](https://github.com/mahir-d/DataCollector#README.md)
 
 ## Introduciton
 Provides the following functionalities:
@@ -33,6 +33,7 @@ authKey=""
 
 
 ## Run
+
 Execute the following command to start the sever at the PORT number mentioned
 in the [.env file](#set-up)
 ``` sh
