@@ -9,8 +9,6 @@ Provides the following functionalities:
  * Converts the database to Excel Sheet
 
 
-``` 
-
 ## Install
 Execute the following command to load all the project dependencies
 ```sh
