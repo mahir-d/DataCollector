@@ -170,7 +170,7 @@ if __name__ == "__main__":
                                      epilog="Made by Mahir Dhall"
                                      )
 
-    parser.add_argument('Table_name', choices=['Challenge_Member_Mapping', 'Challenges', 'Members'], default='Challenges', help="Please select table name to be converted to excel sheet")
+    parser.add_argument('Table_name', metavar="Table_name" ,choices=['Challenge_Member_Mapping', 'Challenges', 'Members'], default='Challenges', help="Please select table name to be converted to excel sheet")
 
 
     args = parser.parse_args()

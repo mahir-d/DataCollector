@@ -77,7 +77,7 @@ if __name__ == '__main__':
     
     parser.add_argument('End_year', help="Please enter end year to fetch challenges and members till inclusive", type=int)
 
-    parser.add_argument('Status',
+    parser.add_argument('Status', metavar='Status',
                         choices=['New', 'Draft', 'Cancelled', 'Active',
                                  'Completed'],
                         default='Completed',
